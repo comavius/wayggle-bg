@@ -116,9 +116,12 @@ impl Dispatch<zwlr_layer_surface_v1::ZwlrLayerSurfaceV1, ()> for AppState {
                         state.vertex_shader.as_str(),
                         state.fragment_shader.as_str(),
                     );
-                    graphics.render(0.0);
+                    let elapsed = state.start_time.elapsed().as_secs_f32();
+                    graphics.render(elapsed);
+                    println!("Graphics initialized and first frame rendered.");
                     let _callback = surface.frame(qh, ());
                     surface.commit();
+                    state.graphics = Some(graphics);
                 } else if let Some(graphics) = state.graphics.as_mut() {
                     graphics.resize(width, height);
                 }
@@ -147,6 +150,7 @@ impl Dispatch<wl_callback::WlCallback, ()> for AppState {
                     (state.graphics.as_ref(), state.surface.as_ref())
                 {
                     let elapsed = state.start_time.elapsed().as_secs_f32();
+                    println!("Rendering frame at elapsed time: {}", elapsed);
                     graphics.render(elapsed);
                     let _callback = surface.frame(qh, ());
                     surface.commit();
