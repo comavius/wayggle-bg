@@ -1,5 +1,40 @@
 # wayggle-bg
 
+## Installation
+### via Nix
+wayggle-bg is available through the Nix package manager. `github:comavius/wayggle-bg` is distributed as a Nix flake.
+```nix
+# flake.nix
+{
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    wayggle-bg = {
+      url = "github:comavius/wayggle-bg";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+  };
+
+  outputs = { self, nixpkgs, wayggle-bg }:
+    let
+      system = "x86_64-linux";
+      pkgs = import nixpkgs {
+        inherit system;
+      };
+    in
+    {
+      packages.default = wayggle-bg.packages.${system}.default;
+    };
+}
+```
+If you have `nix` installed but do not intend to configure flake.nix, you can simply `nix run` or `nix build` the package:
+```bash
+nix run github:comavius/wayggle-bg # for running once
+nix build github:comavius/wayggle-bg # for building the app
+```
+
+### via Cargo
+WIP
+
 ## Tasks
 
 [![xc compatible](https://xcfile.dev/badge.svg)](https://xcfile.dev)
