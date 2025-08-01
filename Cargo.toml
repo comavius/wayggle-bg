@@ -1,0 +1,15 @@
+[package]
+name = "wayggle-bg"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+# Graphics Libraries
+khronos-egl = { version = "6.0.0", features = ["static"] }
+# Wayland protocol
+wayland-client = "0.31.10"
+wayland-protocols-wlr = { version = "0.3.8", features = ["client"] }
+wayland-egl = "0.32.7"
+# Application
+anyhow = "1.0.98"
+glow = "0.16.0"
