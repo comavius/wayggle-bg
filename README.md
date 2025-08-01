@@ -2,7 +2,7 @@
 
 ## Installation
 ### via Nix
-wayggle-bg is available through the Nix package manager. `github:comavius/wayggle-bg` is distributed as a Nix flake.
+wayggle-bg is available through the Nix package manager and it's distributed as a Nix flake.
 ```nix
 # flake.nix
 {
