@@ -54,7 +54,12 @@
       };
 
       devShells.default = pkgs.mkShell {
-        packages = buildInputs ++ nativeBuildInputs;
+        packages =
+          buildInputs
+          ++ nativeBuildInputs
+          ++ [
+            pkgs.xc
+          ];
       };
 
       formatter = pkgs.alejandra;
