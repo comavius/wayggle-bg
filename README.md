@@ -1,5 +1,7 @@
 # wayggle-bg
 
+wayggle-bg provides dynamic wallpapers with shaders for Wayland users.
+
 ## Installation
 ### via Nix
 wayggle-bg is available through the Nix package manager and it's distributed as a Nix flake.
