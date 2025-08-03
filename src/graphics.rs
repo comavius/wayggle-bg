@@ -1,21 +1,10 @@
-use khronos_egl as egl;
-use std::ffi::CString;
-
 use glow::HasContext;
+
+use khronos_egl as egl;
 
 use wayland_client::protocol::wl_surface;
 use wayland_client::{Proxy, protocol::wl_display};
 use wayland_egl as wegl;
-
-use wayland_client::protocol::wl_shm_pool;
-use wayland_client::{
-    Connection, Dispatch, QueueHandle,
-    protocol::{wl_buffer, wl_callback, wl_compositor, wl_registry, wl_shm},
-};
-use wayland_protocols_wlr::layer_shell::v1::client::{
-    zwlr_layer_shell_v1::{self, ZwlrLayerShellV1},
-    zwlr_layer_surface_v1::{self, ZwlrLayerSurfaceV1},
-};
 
 /// Struct to manage EGL/OpenGL ES initialization and rendering using `glow`
 pub struct Graphics {
