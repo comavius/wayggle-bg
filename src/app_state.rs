@@ -222,9 +222,11 @@ impl Dispatch<wl_surface::WlSurface, ()> for AppState {
             }
             wl_surface::Event::PreferredBufferScale { factor } => {
                 // todo: HiDPI support
+                tracing::debug!("TODO: Handle preferred buffer scale factor: {}", factor);
             }
             wl_surface::Event::PreferredBufferTransform { transform } => {
                 // todo: Device rotation support
+                tracing::debug!("TODO: Handle preferred buffer transform: {:?}", transform);
             }
             _ => {
                 // Do nothing
