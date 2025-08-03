@@ -2,6 +2,8 @@
 name = "wayggle-bg"
 version = "0.1.0"
 edition = "2024"
+authors = ["Daisuke Matsunami (Comavius) <comavius@proton.me>"]
+description = "Dynamically rendered wallpaper for Wayland powered by shader technology"
 
 [dependencies]
 # Graphics Libraries
@@ -15,3 +17,4 @@ anyhow = "1.0.98"
 glow = "0.16.0"
 tracing = "0.1.41"
 tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
+clap = "4.5.42"

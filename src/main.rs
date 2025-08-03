@@ -11,8 +11,49 @@ fn main() {
 
     let default_vertex_shader = include_str!("../shaders/default-vert.glsl").to_string();
     let default_fragment_shader = include_str!("../shaders/default-frag.glsl").to_string();
+    let version = env!("CARGO_PKG_VERSION");
+    let description = env!("CARGO_PKG_DESCRIPTION");
 
-    run(default_vertex_shader, default_fragment_shader);
+    let cmd = clap::Command::new("wayggle-bg")
+        .version(version)
+        .about(description)
+        .arg(
+            clap::Arg::new("vertex_shader")
+                .short('v')
+                .long("vertex-shader")
+                .value_name("FILE")
+                .help("Path to the vertex shader file"),
+        )
+        .arg(
+            clap::Arg::new("fragment_shader")
+                .short('f')
+                .long("fragment-shader")
+                .value_name("FILE")
+                .help("Path to the fragment shader file"),
+        );
+    let matches = cmd.get_matches();
+    let (vertex_shader, fragment_shader) =
+        if matches.contains_id("vertex_shader") && matches.contains_id("fragment_shader") {
+            (
+                std::fs::read_to_string(matches.get_one::<String>("vertex_shader").unwrap())
+                    .inspect_err(|e| {
+                        tracing::error!("{}", e);
+                    })
+                    .unwrap(),
+                std::fs::read_to_string(matches.get_one::<String>("fragment_shader").unwrap())
+                    .inspect_err(|e| {
+                        tracing::error!("{}", e);
+                    })
+                    .unwrap(),
+            )
+        } else {
+            if matches.contains_id("vertex_shader") || matches.contains_id("fragment_shader") {
+                tracing::warn!("Not both types of shader files provided, using default shaders.");
+            }
+            (default_vertex_shader, default_fragment_shader)
+        };
+
+    run(vertex_shader, fragment_shader);
 }
 
 fn run(vertex_shader: String, fragment_shader: String) {
