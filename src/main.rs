@@ -8,6 +8,14 @@ fn main() {
         .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
         .with_span_events(tracing_subscriber::fmt::format::FmtSpan::FULL)
         .init();
+
+    let default_vertex_shader = include_str!("../shaders/default-vert.glsl").to_string();
+    let default_fragment_shader = include_str!("../shaders/default-frag.glsl").to_string();
+
+    run(default_vertex_shader, default_fragment_shader);
+}
+
+fn run(vertex_shader: String, fragment_shader: String) {
     let conn = Connection::connect_to_env().unwrap();
     let mut event_queue = conn.new_event_queue();
     let qh = event_queue.handle();
@@ -15,11 +23,7 @@ fn main() {
     let display = conn.display();
     display.get_registry(&qh, ());
 
-    let mut app_state = app_state::AppState::new(
-        display.clone(),
-        include_str!("../shader/example-vert.glsl").to_string(),
-        include_str!("../shader/example-frag.glsl").to_string(),
-    );
+    let mut app_state = app_state::AppState::new(display.clone(), vertex_shader, fragment_shader);
 
     tracing::info!("Waiting for globals...");
     event_queue.roundtrip(&mut app_state).unwrap();
