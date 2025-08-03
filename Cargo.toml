@@ -8,13 +8,13 @@ description = "Dynamically rendered wallpaper for Wayland powered by shader tech
 [dependencies]
 # Graphics Libraries
 khronos-egl = { version = "6.0.0", features = ["static"] }
+glow = "0.16.0"
 # Wayland protocol
 wayland-client = "0.31.10"
 wayland-protocols-wlr = { version = "0.3.8", features = ["client"] }
 wayland-egl = "0.32.7"
 # Application
 anyhow = "1.0.98"
-glow = "0.16.0"
 tracing = "0.1.41"
 tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
 clap = "4.5.42"
