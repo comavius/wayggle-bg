@@ -16,8 +16,8 @@ pub struct AppState {
     pub closed: bool,
     // Wayland objects
     pub display: wl_display::WlDisplay,
-    pub compositor: Option<wl_compositor::WlCompositor>,
-    pub layer_shell: Option<zwlr_layer_shell_v1::ZwlrLayerShellV1>,
+    pub compositor: Option<(wl_compositor::WlCompositor, u32)>,
+    pub layer_shell: Option<(zwlr_layer_shell_v1::ZwlrLayerShellV1, u32)>,
     pub surface: Option<wl_surface::WlSurface>,
     pub layer_surface: Option<zwlr_layer_surface_v1::ZwlrLayerSurfaceV1>,
 }
@@ -56,22 +56,46 @@ impl Dispatch<wl_registry::WlRegistry, ()> for AppState {
         _conn: &Connection,
         qh: &QueueHandle<Self>,
     ) {
-        if let wl_registry::Event::Global {
-            name,
-            interface,
-            version,
-        } = event
-        {
-            match interface.as_str() {
-                "wl_compositor" => {
-                    state.compositor = Some(registry.bind(name, version, qh, ()));
+        match event {
+            wl_registry::Event::Global {
+                name,
+                interface,
+                version,
+            } => {
+                let _span_guard =
+                    tracing::trace_span!("wl_registry::Event::Global", name, interface, version)
+                        .entered();
+                match interface.as_str() {
+                    "wl_compositor" => {
+                        tracing::info!("Compositor found: {} (version {})", name, version);
+                        state.compositor = Some((registry.bind(name, version, qh, ()), name));
+                    }
+                    "zwlr_layer_shell_v1" => {
+                        tracing::info!("LayerShell found: {} (version {})", name, version);
+                        state.layer_shell = Some((registry.bind(name, version, qh, ()), name));
+                    }
+                    _ => {}
                 }
-                "zwlr_layer_shell_v1" => {
-                    state.layer_shell = Some(registry.bind(name, version, qh, ()));
-                }
-                _ => {}
             }
-        }
+            wl_registry::Event::GlobalRemove { name } => {
+                let _span_guard =
+                    tracing::trace_span!("wl_registry::Event::GlobalRemove", name).entered();
+                if let Some((_, compositor_name)) = &state.compositor {
+                    if *compositor_name == name {
+                        tracing::warn!("Compositor {} removed", name);
+                        state.compositor = None;
+                    }
+                }
+                if let Some((_, layer_shell_name)) = &state.layer_shell {
+                    if *layer_shell_name == name {
+                        tracing::warn!("LayerShell {} removed", name);
+                        state.layer_shell = None;
+                    }
+                }
+            }
+            _ => {}
+        };
+        return;
     }
 }
 
@@ -103,7 +127,18 @@ impl Dispatch<zwlr_layer_surface_v1::ZwlrLayerSurfaceV1, ()> for AppState {
                 width,
                 height,
             } => {
-                println!("LayerSurface Configure: width={}, height={}", width, height);
+                let _span_guard = tracing::trace_span!(
+                    "zwlr_layer_surface_v1::Event::Configure",
+                    serial,
+                    width,
+                    height
+                );
+                tracing::info!(
+                    "Layer surface configured: serial={}, width={}, height={}",
+                    serial,
+                    width,
+                    height
+                );
                 surface.ack_configure(serial);
                 if let Some(surface) = state.surface.as_ref()
                     && state.graphics.is_none()
@@ -118,7 +153,7 @@ impl Dispatch<zwlr_layer_surface_v1::ZwlrLayerSurfaceV1, ()> for AppState {
                     );
                     let elapsed = state.start_time.elapsed().as_secs_f32();
                     graphics.render(elapsed);
-                    println!("Graphics initialized and first frame rendered.");
+                    tracing::info!("Rendering initial frame");
                     let _callback = surface.frame(qh, ());
                     surface.commit();
                     state.graphics = Some(graphics);
@@ -127,6 +162,9 @@ impl Dispatch<zwlr_layer_surface_v1::ZwlrLayerSurfaceV1, ()> for AppState {
                 }
             }
             zwlr_layer_surface_v1::Event::Closed => {
+                let _span_guard =
+                    tracing::trace_span!("zwlr_layer_surface_v1::Event::Closed").entered();
+                tracing::info!("Layer surface closed");
                 state.closed = true;
             }
             _ => (),
@@ -145,15 +183,18 @@ impl Dispatch<wl_callback::WlCallback, ()> for AppState {
     ) {
         match event {
             wl_callback::Event::Done { .. } => {
+                let _span_guard = tracing::trace_span!("wl_callback::Event::Done").entered();
                 // Frame callback done, can be used to trigger next render
                 if let (Some(graphics), Some(surface)) =
                     (state.graphics.as_ref(), state.surface.as_ref())
                 {
                     let elapsed = state.start_time.elapsed().as_secs_f32();
-                    println!("Rendering frame at elapsed time: {}", elapsed);
+                    tracing::trace!("Rendering frame at elapsed time: {}", elapsed);
                     graphics.render(elapsed);
                     let _callback = surface.frame(qh, ());
                     surface.commit();
+                } else {
+                    tracing::trace!("No graphics or surface available for rendering.");
                 }
             }
             _ => {

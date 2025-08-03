@@ -2,7 +2,12 @@ mod app_state;
 mod graphics;
 use wayland_client::Connection;
 use wayland_protocols_wlr::layer_shell::v1::client::{zwlr_layer_shell_v1, zwlr_layer_surface_v1};
+
 fn main() {
+    tracing_subscriber::fmt()
+        .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
+        .with_span_events(tracing_subscriber::fmt::format::FmtSpan::FULL)
+        .init();
     let conn = Connection::connect_to_env().unwrap();
     let mut event_queue = conn.new_event_queue();
     let qh = event_queue.handle();
@@ -16,19 +21,19 @@ fn main() {
         include_str!("../shader/example-frag.glsl").to_string(),
     );
 
-    println!("Starting initial roundtrip to get globals...");
+    tracing::info!("Waiting for globals...");
     event_queue.roundtrip(&mut app_state).unwrap();
-    println!("Globals received.");
+    tracing::info!("Globals received.");
 
     let compositor = app_state.compositor.as_ref().expect("Compositor not found");
-    let surface = compositor.create_surface(&qh, ());
+    let surface = compositor.0.create_surface(&qh, ());
     app_state.surface = Some(surface.clone());
 
     let layer_shell = app_state
         .layer_shell
         .as_ref()
         .expect("Layer shell not found");
-    let layer_surface = layer_shell.get_layer_surface(
+    let layer_surface = layer_shell.0.get_layer_surface(
         &surface,
         None,
         zwlr_layer_shell_v1::Layer::Bottom,
@@ -47,11 +52,11 @@ fn main() {
     app_state.layer_surface = Some(layer_surface);
 
     surface.commit();
-    println!("Initial commit done. Waiting for configure event...");
+    tracing::info!("Initial commit done. Waiting for configure event...");
 
     while app_state.is_running() {
         event_queue.blocking_dispatch(&mut app_state).unwrap();
     }
 
-    println!("Exiting.");
+    tracing::info!("Exiting.");
 }
