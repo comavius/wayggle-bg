@@ -25,7 +25,7 @@ pub fn shader_toy_adaptor(fragment_shader: String) -> String {
         void main() {{
             iResolution=vec3(u_resolution,u_resolution.x/u_resolution.y);
             iTime=u_time;
-            vec2 w=v_position*u_resolution.xy;
+            vec2 w=(v_position * 0.5 + 0.5) * u_resolution.xy;
             mainImage(fragColor,w);
         }}
         "
