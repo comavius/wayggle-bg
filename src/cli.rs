@@ -7,6 +7,8 @@
 pub struct Cli {
     #[clap(subcommand)]
     pub command: Command,
+    #[clap(short = 'c', long = "enable-cursor-support", value_name = "COMPOSITOR", value_enum, default_value_t = CursorSupportKind::Disabled)]
+    pub cursor_support: CursorSupportKind,
 }
 
 #[derive(clap::Subcommand)]
@@ -23,4 +25,10 @@ pub enum Command {
         #[clap(short, long, value_name = "FILE")]
         vertex_shader: Option<String>,
     },
+}
+
+#[derive(Clone, clap::ValueEnum)]
+pub enum CursorSupportKind {
+    Hyprland,
+    Disabled,
 }

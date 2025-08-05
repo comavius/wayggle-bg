@@ -1,7 +1,9 @@
 mod adaptors;
 mod cli;
+mod cursor_support;
 mod wayland_app;
 use clap::Parser as _;
+use std::rc::Rc;
 
 fn main() {
     tracing_subscriber::fmt()
@@ -34,6 +36,16 @@ fn main() {
         }
     };
 
-    println!("{}", fragment_shader);
-    wayland_app::run(vertex_shader, fragment_shader);
+    let get_cursor = match cli_configuration.cursor_support {
+        cli::CursorSupportKind::Hyprland => Some(Rc::new(
+            cursor_support::hyprland_get_cursor as fn() -> (f32, f32),
+        )),
+        cli::CursorSupportKind::Disabled => None,
+    };
+    let conf = wayland_app::AppConfiguration {
+        vertex_shader,
+        fragment_shader,
+        get_cursor,
+    };
+    wayland_app::run(conf);
 }

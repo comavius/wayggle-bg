@@ -8,11 +8,12 @@ use wayland_client::{
 };
 use wayland_protocols_wlr::layer_shell::v1::client::{zwlr_layer_shell_v1, zwlr_layer_surface_v1};
 
+use super::AppConfiguration;
+
 pub struct AppState {
     pub graphics: Option<Graphics>,
     pub start_time: Instant,
-    pub vertex_shader: String,
-    pub fragment_shader: String,
+    pub conf: AppConfiguration,
     pub closed: bool,
     // Wayland objects
     pub display: wl_display::WlDisplay,
@@ -23,16 +24,11 @@ pub struct AppState {
 }
 
 impl AppState {
-    pub fn new(
-        display: wl_display::WlDisplay,
-        vertex_shader: String,
-        fragment_shader: String,
-    ) -> Self {
+    pub fn new(display: wl_display::WlDisplay, conf: AppConfiguration) -> Self {
         AppState {
             graphics: None,
             start_time: Instant::now(),
-            vertex_shader,
-            fragment_shader,
+            conf,
             closed: false,
             display,
             compositor: None,
@@ -143,14 +139,8 @@ impl Dispatch<zwlr_layer_surface_v1::ZwlrLayerSurfaceV1, ()> for AppState {
                 if let Some(surface) = state.surface.as_ref()
                     && state.graphics.is_none()
                 {
-                    let graphics = Graphics::new(
-                        &state.display,
-                        &surface,
-                        width,
-                        height,
-                        state.vertex_shader.as_str(),
-                        state.fragment_shader.as_str(),
-                    );
+                    let graphics =
+                        Graphics::new(&state.display, &surface, width, height, &state.conf);
                     let elapsed = state.start_time.elapsed().as_secs_f32();
                     graphics.render(elapsed);
                     tracing::info!("Rendering initial frame");

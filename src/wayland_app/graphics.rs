@@ -6,6 +6,9 @@ use wayland_client::protocol::wl_surface;
 use wayland_client::{Proxy, protocol::wl_display};
 use wayland_egl as wegl;
 
+use super::AppConfiguration;
+use std::rc::Rc;
+
 /// Struct to manage EGL/OpenGL ES initialization and rendering using `glow`
 pub struct Graphics {
     egl_instance: egl::Instance<egl::Static>,
@@ -22,6 +25,7 @@ pub struct Graphics {
     vbo: glow::Buffer,
     time_uniform_location: Option<glow::UniformLocation>,
     resolution_uniform_location: Option<glow::UniformLocation>,
+    cursor_location_and_inspector: Option<(glow::UniformLocation, Rc<fn() -> (f32, f32)>)>,
 }
 
 impl Graphics {
@@ -52,6 +56,11 @@ impl Graphics {
                 self.gl
                     .uniform_2_f32(Some(&location), self.width as f32, self.height as f32);
             }
+            if let Some((cursor_location, get_cursor)) = self.cursor_location_and_inspector.as_ref()
+            {
+                let (x, y) = get_cursor();
+                self.gl.uniform_2_f32(Some(cursor_location), x, y);
+            }
 
             // Draw the rectangle
             self.gl.draw_arrays(glow::TRIANGLE_STRIP, 0, 4);
@@ -80,8 +89,7 @@ impl Graphics {
         surface: &wl_surface::WlSurface,
         width: u32,
         height: u32,
-        vertex_shader: &str,
-        fragment_shader: &str,
+        conf: &AppConfiguration,
     ) -> Self {
         let egl_instance = egl::Instance::<egl::Static>::new(egl::Static);
 
@@ -182,7 +190,7 @@ impl Graphics {
                     tracing::error!("Cannot create vertex shader: {}", e);
                 })
                 .unwrap();
-            gl.shader_source(vs, &vertex_shader);
+            gl.shader_source(vs, &conf.vertex_shader);
             gl.compile_shader(vs);
             if !gl.get_shader_compile_status(vs) {
                 tracing::error!(
@@ -199,7 +207,7 @@ impl Graphics {
                     tracing::error!("Cannot create fragment shader: {}", e);
                 })
                 .unwrap();
-            gl.shader_source(fs, &fragment_shader);
+            gl.shader_source(fs, &conf.fragment_shader);
             gl.compile_shader(fs);
             if !gl.get_shader_compile_status(fs) {
                 tracing::error!(
@@ -228,6 +236,17 @@ impl Graphics {
 
         let resolution_uniform_location =
             unsafe { gl.get_uniform_location(shader_program, "u_resolution") };
+
+        let cursor_location_and_inspector = match conf.get_cursor.as_ref() {
+            Some(get_cursor) => {
+                let cursor_location = unsafe { gl.get_uniform_location(shader_program, "u_mouse") };
+                match cursor_location {
+                    Some(cursor_location) => Some((cursor_location, get_cursor.clone())),
+                    None => None,
+                }
+            }
+            None => None,
+        };
 
         let vbo = unsafe {
             let vertices: [f32; 8] = [-1.0, -1.0, 1.0, -1.0, -1.0, 1.0, 1.0, 1.0];
@@ -266,9 +285,11 @@ impl Graphics {
             vbo,
             time_uniform_location,
             resolution_uniform_location,
+            cursor_location_and_inspector,
         }
     }
 }
+
 impl Drop for Graphics {
     fn drop(&mut self) {
         unsafe {

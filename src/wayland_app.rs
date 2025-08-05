@@ -4,7 +4,15 @@ mod graphics;
 use wayland_client::Connection;
 use wayland_protocols_wlr::layer_shell::v1::client::{zwlr_layer_shell_v1, zwlr_layer_surface_v1};
 
-pub fn run(vertex_shader: String, fragment_shader: String) {
+use std::rc::Rc;
+
+pub struct AppConfiguration {
+    pub vertex_shader: String,
+    pub fragment_shader: String,
+    pub get_cursor: Option<Rc<fn() -> (f32, f32)>>,
+}
+
+pub fn run(conf: AppConfiguration) {
     let conn = Connection::connect_to_env().unwrap();
     let mut event_queue = conn.new_event_queue();
     let qh = event_queue.handle();
@@ -12,7 +20,7 @@ pub fn run(vertex_shader: String, fragment_shader: String) {
     let display = conn.display();
     display.get_registry(&qh, ());
 
-    let mut app_state = app_state::AppState::new(display.clone(), vertex_shader, fragment_shader);
+    let mut app_state = app_state::AppState::new(display.clone(), conf);
 
     tracing::info!("Waiting for globals...");
     event_queue.roundtrip(&mut app_state).unwrap();
