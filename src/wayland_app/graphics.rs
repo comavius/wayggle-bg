@@ -20,7 +20,8 @@ pub struct Graphics {
 
     shader_program: glow::Program,
     vbo: glow::Buffer,
-    time_uniform_location: glow::UniformLocation,
+    time_uniform_location: Option<glow::UniformLocation>,
+    resolution_uniform_location: Option<glow::UniformLocation>,
 }
 
 impl Graphics {
@@ -44,8 +45,13 @@ impl Graphics {
             self.gl.use_program(Some(self.shader_program));
 
             // Pass a reference to the UniformLocation
-            self.gl
-                .uniform_1_f32(Some(&self.time_uniform_location), elapsed);
+            if let Some(location) = self.time_uniform_location {
+                self.gl.uniform_1_f32(Some(&location), elapsed);
+            }
+            if let Some(location) = self.resolution_uniform_location {
+                self.gl
+                    .uniform_2_f32(Some(&location), self.width as f32, self.height as f32);
+            }
 
             // Draw the rectangle
             self.gl.draw_arrays(glow::TRIANGLE_STRIP, 0, 4);
@@ -218,14 +224,10 @@ impl Graphics {
             program
         };
 
-        let time_uniform_location = unsafe {
-            gl.get_uniform_location(shader_program, "u_time")
-                .ok_or("Failed to get uniform location for u_time")
-                .inspect_err(|e| {
-                    tracing::error!("{}", e);
-                })
-                .unwrap()
-        };
+        let time_uniform_location = unsafe { gl.get_uniform_location(shader_program, "u_time") };
+
+        let resolution_uniform_location =
+            unsafe { gl.get_uniform_location(shader_program, "u_resolution") };
 
         let vbo = unsafe {
             let vertices: [f32; 8] = [-1.0, -1.0, 1.0, -1.0, -1.0, 1.0, 1.0, 1.0];
@@ -263,6 +265,7 @@ impl Graphics {
             shader_program,
             vbo,
             time_uniform_location,
+            resolution_uniform_location,
         }
     }
 }

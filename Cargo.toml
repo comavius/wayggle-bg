@@ -17,4 +17,4 @@ wayland-egl = "0.32.7"
 anyhow = "1.0.98"
 tracing = "0.1.41"
 tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
-clap = "4.5.42"
+clap = { version = "4.5.42", features = ["derive"] }

@@ -1,7 +1,7 @@
-mod app_state;
-mod graphics;
-use wayland_client::Connection;
-use wayland_protocols_wlr::layer_shell::v1::client::{zwlr_layer_shell_v1, zwlr_layer_surface_v1};
+mod adaptors;
+mod cli;
+mod wayland_app;
+use clap::Parser as _;
 
 fn main() {
     tracing_subscriber::fmt()
@@ -14,97 +14,26 @@ fn main() {
 
     let default_vertex_shader = include_str!("../shaders/default-vert.glsl").to_string();
     let default_fragment_shader = include_str!("../shaders/default-frag.glsl").to_string();
-    let version = env!("CARGO_PKG_VERSION");
-    let description = env!("CARGO_PKG_DESCRIPTION");
+    let default_shadertoy_shader = include_str!("../shaders/default-shadertoy.glsl").to_string();
 
-    let cmd = clap::Command::new("wayggle-bg")
-        .version(version)
-        .about(description)
-        .arg(
-            clap::Arg::new("vertex_shader")
-                .short('v')
-                .long("vertex-shader")
-                .value_name("FILE")
-                .help("Path to the vertex shader file"),
-        )
-        .arg(
-            clap::Arg::new("fragment_shader")
-                .short('f')
-                .long("fragment-shader")
-                .value_name("FILE")
-                .help("Path to the fragment shader file"),
-        );
-    let matches = cmd.get_matches();
-    let (vertex_shader, fragment_shader) =
-        if matches.contains_id("vertex_shader") && matches.contains_id("fragment_shader") {
-            (
-                std::fs::read_to_string(matches.get_one::<String>("vertex_shader").unwrap())
-                    .inspect_err(|e| {
-                        tracing::error!("{}", e);
-                    })
-                    .unwrap(),
-                std::fs::read_to_string(matches.get_one::<String>("fragment_shader").unwrap())
-                    .inspect_err(|e| {
-                        tracing::error!("{}", e);
-                    })
-                    .unwrap(),
-            )
-        } else {
-            if matches.contains_id("vertex_shader") || matches.contains_id("fragment_shader") {
-                tracing::warn!("Not both types of shader files provided, using default shaders.");
-            }
-            (default_vertex_shader, default_fragment_shader)
-        };
+    let cli_configuration = cli::Cli::parse();
 
-    run(vertex_shader, fragment_shader);
-}
+    let (vertex_shader, fragment_shader) = match cli_configuration.command {
+        cli::Command::ShaderToy { fragment_shader } => {
+            let fragment_shader =
+                adaptors::shader_toy_adaptor(fragment_shader.unwrap_or(default_shadertoy_shader));
+            (default_vertex_shader.clone(), fragment_shader)
+        }
+        cli::Command::TheBookOfShaders {
+            fragment_shader,
+            vertex_shader,
+        } => {
+            let fragment_shader = fragment_shader.unwrap_or(default_fragment_shader);
+            let vertex_shader = vertex_shader.unwrap_or(default_vertex_shader);
+            (vertex_shader, fragment_shader)
+        }
+    };
 
-fn run(vertex_shader: String, fragment_shader: String) {
-    let conn = Connection::connect_to_env().unwrap();
-    let mut event_queue = conn.new_event_queue();
-    let qh = event_queue.handle();
-
-    let display = conn.display();
-    display.get_registry(&qh, ());
-
-    let mut app_state = app_state::AppState::new(display.clone(), vertex_shader, fragment_shader);
-
-    tracing::info!("Waiting for globals...");
-    event_queue.roundtrip(&mut app_state).unwrap();
-    tracing::info!("Globals received.");
-
-    let compositor = app_state.compositor.as_ref().expect("Compositor not found");
-    let surface = compositor.0.create_surface(&qh, ());
-    app_state.surface = Some(surface.clone());
-
-    let layer_shell = app_state
-        .layer_shell
-        .as_ref()
-        .expect("Layer shell not found");
-    let layer_surface = layer_shell.0.get_layer_surface(
-        &surface,
-        None,
-        zwlr_layer_shell_v1::Layer::Bottom,
-        "egl_background".to_string(),
-        &qh,
-        (),
-    );
-    layer_surface.set_exclusive_zone(-1);
-    layer_surface.set_anchor(
-        zwlr_layer_surface_v1::Anchor::Top
-            | zwlr_layer_surface_v1::Anchor::Bottom
-            | zwlr_layer_surface_v1::Anchor::Left
-            | zwlr_layer_surface_v1::Anchor::Right,
-    );
-    layer_surface.set_size(0, 0);
-    app_state.layer_surface = Some(layer_surface);
-
-    surface.commit();
-    tracing::info!("Initial commit done. Waiting for configure event...");
-
-    while app_state.is_running() {
-        event_queue.blocking_dispatch(&mut app_state).unwrap();
-    }
-
-    tracing::info!("Exiting.");
+    println!("{}", fragment_shader);
+    wayland_app::run(vertex_shader, fragment_shader);
 }

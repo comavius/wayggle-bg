@@ -1,6 +1,6 @@
 use std::time::Instant;
 
-use crate::graphics::Graphics;
+use super::graphics::Graphics;
 use wayland_client::protocol::wl_display;
 use wayland_client::{
     Connection, Dispatch, QueueHandle,
