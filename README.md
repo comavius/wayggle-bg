@@ -1,5 +1,12 @@
 # wayggle-bg
 
+If you want to try it out, you can run the following command:
+```bash
+nix run github:comavius/wayggle-bg -- default --name box
+```
+
+---
+
 wayggle-bg is a wallpaper application for Wayland compositors that supports GLSL shaders, including ShaderToy and The Book of Shaders formats. It allows you to set animated wallpapers using custom shaders.
 
 https://www.youtube.com/watch?v=eBu3p4VQqkQ
