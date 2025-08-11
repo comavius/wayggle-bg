@@ -16,14 +16,22 @@ pub enum Command {
     #[clap(name = "shadertoy")]
     ShaderToy {
         #[clap(short, long, value_name = "FILE")]
-        fragment_shader: Option<String>,
+        fragment_shader: String,
     },
     #[clap(name = "the_book_of_shaders")]
     TheBookOfShaders {
         #[clap(short, long, value_name = "FILE")]
-        fragment_shader: Option<String>,
+        fragment_shader: String,
         #[clap(short, long, value_name = "FILE")]
         vertex_shader: Option<String>,
+    },
+    #[clap(
+        name = "default",
+        about = "Run the default shader with a given name<'box'>."
+    )]
+    Default {
+        #[clap(short, long, value_name = "NAME")]
+        name: String,
     },
 }
 
