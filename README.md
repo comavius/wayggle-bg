@@ -1,5 +1,34 @@
 # wayggle-bg
-[![demonstration of wayggle-bg](http://img.youtube.com/vi/eBu3p4VQqkQ/0.jpg)](https://www.youtube.com/watch?v=eBu3p4VQqkQ)
+
+wayggle-bg is a wallpaper application for Wayland compositors that supports GLSL shaders, including ShaderToy and The Book of Shaders formats. It allows you to set animated wallpapers using custom shaders.
+
+https://www.youtube.com/watch?v=eBu3p4VQqkQ
+
+Demonstration video above.
+
+
+## Example usage
+### Default shader
+```bash
+wayggle-bg default --name box
+```
+
+### ShaderToy shader
+In this mode, this application passes uniform variables in shader toy format, like `iTime`.
+```bash
+wayggle-bg shadertoy --fragment-shader <path-to-shadertoy-fragment.glsl>
+```
+
+### The Book of Shaders
+In this mode, this application passes uniform variables in The Book of Shaders format, like `u_time`.
+```bash
+wayggle-bg book-of-shaders --fragment-shader <path-to-book-of-shaders-fragment.glsl>
+# You can also specify a custom vertex shader
+wayggle-bg book-of-shaders --fragment-shader <path-to-book-of-shaders-fragment.glsl> --vertex-shader <path-to-book-of-shaders-vertex.glsl>
+```
+### Cursor support
+Hyprland users can enable cursor support by passing `--enable-cursor-support` flag.
+
 ## Installation
 ### via Nix
 wayggle-bg is available through the Nix package manager and it's distributed as a Nix flake.
