@@ -1,6 +1,7 @@
 mod adaptors;
 mod cli;
 mod cursor_support;
+mod render_graph;
 mod wayland_app;
 use clap::Parser as _;
 use std::rc::Rc;
