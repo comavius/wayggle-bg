@@ -37,8 +37,8 @@ pub fn run(conf: AppConfiguration) {
     let layer_surface = layer_shell.0.get_layer_surface(
         &surface,
         None,
-        zwlr_layer_shell_v1::Layer::Bottom,
-        "egl_background".to_string(),
+        zwlr_layer_shell_v1::Layer::Background,
+        "wayggle-bg".to_string(),
         &qh,
         (),
     );
