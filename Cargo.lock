@@ -12,12 +12,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "allocator-api2"
-version = "0.2.21"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "683d7910e743518b0e34f1186f92494becacb047c7b6bf616c96772180fef923"
-
-[[package]]
 name = "anstream"
 version = "0.6.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -277,12 +271,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "48c757948c5ede0e46177b7add2e67155f70e33c07fea8284df6576da70b3719"
 
 [[package]]
-name = "equivalent"
-version = "1.0.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "877a4ace8713b0bcf2a4e7eec82529c029f1d0619886d18145fea96c3ffe5c0f"
-
-[[package]]
 name = "errno"
 version = "0.3.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -297,12 +285,6 @@ name = "fastrand"
 version = "2.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "37909eebbb50d72f9059c3b6d82c0463f2ff062c9e95845c43a6c9c0355411be"
-
-[[package]]
-name = "foldhash"
-version = "0.1.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d9c4f5dac5e15c24eb999c26181a6ca40b39fe946cbe4c263c7209467bc83af2"
 
 [[package]]
 name = "genawaiter"
@@ -377,17 +359,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e5274423e17b7c9fc20b6e7e208532f9b19825d82dfd615708b70edd83df41f1"
 
 [[package]]
-name = "hashbrown"
-version = "0.15.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9229cfe53dfd69f0609a49f65461bd93001ea1ef889cd5529dd176593f5338a1"
-dependencies = [
- "allocator-api2",
- "equivalent",
- "foldhash",
-]
-
-[[package]]
 name = "heck"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -402,6 +373,12 @@ dependencies = [
  "autocfg",
  "hashbrown 0.12.3",
 ]
+
+[[package]]
+name = "integer-encoding"
+version = "4.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0d762194228a2f1c11063e46e32e5acb96e66e906382b9eb5441f2e0504bbd5a"
 
 [[package]]
 name = "is_terminal_polyfill"
@@ -585,6 +562,12 @@ checksum = "488016bfae457b036d996092f6cb448677611ce4449e970ceaf42695203f218a"
 dependencies = [
  "autocfg",
 ]
+
+[[package]]
+name = "nohash-hasher"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2bf50223579dc7cdcfb3bfcacf7069ff68243f8c363f62ffa99cf000a6b9c451"
 
 [[package]]
 name = "nom8"
@@ -990,52 +973,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "snix-eval"
-version = "0.1.0"
-source = "git+https://git.snix.dev/snix/snix.git?rev=d89202f5a2db180474deb31b717c2554a6004895#d89202f5a2db180474deb31b717c2554a6004895"
-dependencies = [
- "bstr",
- "bytes",
- "codemap",
- "codemap-diagnostic",
- "data-encoding",
- "dirs",
- "genawaiter",
- "hashbrown 0.15.5",
- "itertools",
- "lexical-core",
- "md-5",
- "os_str_bytes",
- "path-clean",
- "proptest",
- "regex",
- "rnix",
- "rowan",
- "rustc-hash 2.1.1",
- "serde",
- "serde_json",
- "sha1",
- "sha2",
- "smol_str",
- "snix-eval-builtin-macros",
- "tabwriter",
- "test-strategy",
- "thiserror 2.0.17",
- "toml",
- "vu128",
-]
-
-[[package]]
-name = "snix-eval-builtin-macros"
-version = "0.0.1"
-source = "git+https://git.snix.dev/snix/snix.git?rev=d89202f5a2db180474deb31b717c2554a6004895#d89202f5a2db180474deb31b717c2554a6004895"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 1.0.109",
-]
-
-[[package]]
 name = "static_assertions"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1307,6 +1244,52 @@ dependencies = [
 ]
 
 [[package]]
+name = "tvix-eval"
+version = "0.1.0"
+source = "git+https://github.com/tvlfyi/tvix.git?rev=a392c813e011be428941e593a5fd22eeb9d87484#a392c813e011be428941e593a5fd22eeb9d87484"
+dependencies = [
+ "bstr",
+ "bytes",
+ "codemap",
+ "codemap-diagnostic",
+ "data-encoding",
+ "dirs",
+ "genawaiter",
+ "integer-encoding",
+ "itertools",
+ "lexical-core",
+ "md-5",
+ "nohash-hasher",
+ "os_str_bytes",
+ "path-clean",
+ "proptest",
+ "regex",
+ "rnix",
+ "rowan",
+ "rustc-hash 2.1.1",
+ "serde",
+ "serde_json",
+ "sha1",
+ "sha2",
+ "smol_str",
+ "tabwriter",
+ "test-strategy",
+ "thiserror 2.0.17",
+ "toml",
+ "tvix-eval-builtin-macros",
+]
+
+[[package]]
+name = "tvix-eval-builtin-macros"
+version = "0.0.1"
+source = "git+https://github.com/tvlfyi/tvix.git?rev=a392c813e011be428941e593a5fd22eeb9d87484#a392c813e011be428941e593a5fd22eeb9d87484"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 1.0.109",
+]
+
+[[package]]
 name = "typenum"
 version = "1.19.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1347,12 +1330,6 @@ name = "version_check"
 version = "0.9.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
-
-[[package]]
-name = "vu128"
-version = "1.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b18da3bd753c6f4373511e5f025423986560dfe4a5e7d642cc9a0266847f9fdd"
 
 [[package]]
 name = "wasi"
@@ -1446,11 +1423,11 @@ dependencies = [
  "khronos-egl",
  "serde",
  "serde_json",
- "snix-eval",
  "thiserror 2.0.17",
  "tracing",
  "tracing-subscriber",
  "tracing-test",
+ "tvix-eval",
  "wayland-client",
  "wayland-egl",
  "wayland-protocols-wlr",

@@ -2,10 +2,10 @@
 mod tests;
 
 use serde::{Deserialize, Serialize};
-use snix_eval::EvalMode;
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use thiserror::Error;
+use tvix_eval::EvalMode;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
@@ -69,7 +69,7 @@ pub enum RenderGraphConfigurationReadError {
     #[error("Failed to read file: {0}")]
     FileReadError(#[from] std::io::Error),
     #[error("Failed to evaluate nix expression: {0:?}")]
-    NixEvaluationError(Vec<snix_eval::Error>),
+    NixEvaluationError(Vec<tvix_eval::Error>),
     #[error("Failed to deserialize render graph configuration: {0}")]
     SerdeError(serde_json::Error),
     #[error("Internal error: {0}")]
@@ -118,7 +118,7 @@ pub fn read_render_graph_configuration_from_nix_file(
         default_resolution.width
     );
     tracing::debug!("Nix expression: {}", nix_expression);
-    let evaluation = snix_eval::Evaluation::builder_impure()
+    let evaluation = tvix_eval::Evaluation::builder_impure()
         .mode(EvalMode::Lazy)
         .build();
     let result = evaluation.evaluate(&nix_expression, None);
