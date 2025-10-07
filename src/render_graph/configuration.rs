@@ -66,8 +66,6 @@ pub enum RenderGraphConfigurationReadError {
     InvalidNixFilePath(PathBuf),
     #[error("Internal nix library not found: {0}")]
     InternalNixLibraryNotFound(PathBuf),
-    #[error("Failed to read file: {0}")]
-    FileReadError(#[from] std::io::Error),
     #[error("Failed to evaluate nix expression: {0:?}")]
     NixEvaluationError(Vec<tvix_eval::Error>),
     #[error("Failed to deserialize render graph configuration: {0}")]
