@@ -9,7 +9,7 @@ mod misc_to_mermaid;
 
 pub use misc_to_mermaid::to_mermaid;
 
-pub fn get_rendering_pipeline(
+pub fn build_rendering_pipeline(
     pipeline_configuration: &PipelineConfiguration,
 ) -> Result<RenderingPipeline, String> {
     let conf_render_pass = match &pipeline_configuration.setting_files {
