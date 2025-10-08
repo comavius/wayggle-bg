@@ -41,6 +41,7 @@
       buildInputs = with pkgs; [
         libglvnd
         wayland
+        shaderc
       ];
     in {
       packages.default = rustPlatform.buildRustPackage {
