@@ -11,6 +11,7 @@ khronos-egl = { version = "6.0.0", features = ["static"] }
 glow = "0.16.0"
 vulkano = "0.35.2"
 shaderc = "0.10.1"
+stb_image = "0.3.0"
 # Wayland protocol
 wayland-client = "0.31.10"
 wayland-protocols-wlr = { version = "0.3.8", features = ["client"] }
