@@ -2,7 +2,6 @@ use std::path::PathBuf;
 use std::{collections::HashMap, path::Path};
 use uuid::Uuid;
 
-mod compiler;
 mod conf_reader;
 mod flatten_graph;
 mod misc_to_mermaid;
