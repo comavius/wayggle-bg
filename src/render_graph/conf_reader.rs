@@ -51,7 +51,6 @@ pub struct ConfTransformPass {
     pub fragment_shader: String,
     pub inputs: HashMap<String, ConfRenderPass>,
     pub builtin_names: ConfBuiltinsNames,
-    pub outputs: Vec<String>,
     pub frame_rate: u32,
 }
 

@@ -12,7 +12,6 @@
   fragmentShader ? null, # string
   builtinNames ? {}, # { [string]: string }
   inputs ? {}, # { [string]: texturePass | transformPass }
-  outputs, # [string]
   frameRate ? 30, # int
 }: let
   _functionName = "mkTransform";
@@ -22,7 +21,7 @@
   ];
 in {
   transformPass = {
-    inherit name resolution inputs outputs frameRate;
+    inherit name resolution inputs frameRate;
     vertexShader =
       if (vertexShader != null && vertexShaderSrc != null)
       then throw "${_functionName}: only one of `vertexShader` and `vertexShaderSrc` should be provided"

@@ -33,7 +33,6 @@
     inputs = {
       texture1 = texture1;
     };
-    outputs = ["output1"];
     frameRate = 30;
   };
   transform2 = mkTransform {
@@ -44,7 +43,6 @@
       texture2 = texture2;
       transform1Output1 = transform1;
     };
-    outputs = ["output2"];
     frameRate = 30;
   };
 in
