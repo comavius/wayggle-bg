@@ -10,10 +10,10 @@ use uuid::Uuid;
 /// for easy and safe render pass caching.
 /// This can be improved to O(|V| log |V| + |E|) with hashes,
 /// but I don't like manual hash implementation.
-pub fn flatten_render_graph(conf_render_pass: &ConfRenderPass) -> RenderingPipeline {
+pub fn flatten_rendering_pipeline(conf_render_pass: &ConfRenderPass) -> RenderingPipeline {
     let mut passes = vec![];
     let mut dependencies = vec![];
-    flatten_render_graph_inner(conf_render_pass, &mut passes, &mut dependencies);
+    flatten_rendering_pipeline_inner(conf_render_pass, &mut passes, &mut dependencies);
     RenderingPipeline {
         passes: passes
             .into_iter()
@@ -58,7 +58,7 @@ pub fn flatten_render_graph(conf_render_pass: &ConfRenderPass) -> RenderingPipel
     }
 }
 
-fn flatten_render_graph_inner(
+fn flatten_rendering_pipeline_inner(
     conf_render_pass: &ConfRenderPass,
     passes: &mut Vec<(Uuid, ConfRenderPass)>,
     dependencies: &mut Vec<Dependency>,
@@ -74,7 +74,7 @@ fn flatten_render_graph_inner(
         passes.push((id, conf_render_pass.clone()));
         if let ConfRenderPass::TransformPass(transform_pass) = conf_render_pass {
             for (input_name, input_pass) in &transform_pass.inputs {
-                let input_id = flatten_render_graph_inner(input_pass, passes, dependencies);
+                let input_id = flatten_rendering_pipeline_inner(input_pass, passes, dependencies);
                 dependencies.push(Dependency {
                     from: input_id,
                     to: id,

@@ -1,34 +1,36 @@
 use super::*;
 
 #[derive(Debug, Error)]
-pub enum RenderGraphNixConfigurationReadError {
+pub enum RenderingPipelineNixConfigurationReadError {
     #[error("Invalid nix file path: {0}")]
     InvalidNixFilePath(PathBuf),
     #[error("Internal nix library not found: {0}")]
     InternalNixLibraryNotFound(PathBuf),
     #[error("Failed to evaluate nix expression: {0:?}")]
     NixEvaluationError(Vec<snix_eval::Error>),
-    #[error("Failed to deserialize render graph configuration: {0}")]
+    #[error("Failed to deserialize rendering pipeline configuration: {0}")]
     SerdeError(serde_json::Error),
     #[error("Internal error: {0}")]
     InternalError(String),
 }
 
-/// Reader, evaluator and deserializer for render graph configuration written in Nix.
+/// Reader, evaluator and deserializer for rendering pipeline configuration written in Nix.
 ///
 /// Encapsulating `tvix-eval` interfaces.
-pub fn read_render_graph_configuration_from_nix_file(
+pub fn read_rendering_pipeline_configuration_from_nix_file(
     nix_file_path: &Path,
     nix_lib_dir: &Path,
     default_resolution: ConfResolution,
-) -> Result<ConfRenderPass, RenderGraphNixConfigurationReadError> {
+) -> Result<ConfRenderPass, RenderingPipelineNixConfigurationReadError> {
     // Both nix_file_path and nix_lib_dir must be canonicalized
     // to evaluate the nix expression without file path.
     let canonical_nix_file_path = nix_file_path.canonicalize().map_err(|_| {
-        RenderGraphNixConfigurationReadError::InvalidNixFilePath(nix_file_path.to_path_buf())
+        RenderingPipelineNixConfigurationReadError::InvalidNixFilePath(nix_file_path.to_path_buf())
     })?;
     let canonical_nix_lib_dir = nix_lib_dir.canonicalize().map_err(|_| {
-        RenderGraphNixConfigurationReadError::InternalNixLibraryNotFound(nix_lib_dir.to_path_buf())
+        RenderingPipelineNixConfigurationReadError::InternalNixLibraryNotFound(
+            nix_lib_dir.to_path_buf(),
+        )
     })?;
     // Passing height and width of monitor resolution because it is machine dependent.
     //
@@ -62,9 +64,7 @@ pub fn read_render_graph_configuration_from_nix_file(
         .build();
     let result = evaluation.evaluate(&nix_expression, None);
     if !result.errors.is_empty() {
-        return Err(RenderGraphNixConfigurationReadError::NixEvaluationError(
-            result.errors,
-        ));
+        return Err(RenderingPipelineNixConfigurationReadError::NixEvaluationError(result.errors));
     }
     match result.value {
         Some(value) => {
@@ -73,7 +73,7 @@ pub fn read_render_graph_configuration_from_nix_file(
                 .strip_prefix('"')
                 .and_then(|s| s.strip_suffix('"'))
                 .ok_or_else(|| {
-                    RenderGraphNixConfigurationReadError::InternalError(
+                    RenderingPipelineNixConfigurationReadError::InternalError(
                         "Failed to strip quotes from JSON string".to_string(),
                     )
                 })?
@@ -81,10 +81,10 @@ pub fn read_render_graph_configuration_from_nix_file(
                 .replace("\\\"", "\"")
                 .replace("\\\\", "\\");
             let render_pass: ConfRenderPass = serde_json::from_str(&json_string)
-                .map_err(RenderGraphNixConfigurationReadError::SerdeError)?;
+                .map_err(RenderingPipelineNixConfigurationReadError::SerdeError)?;
             Ok(render_pass)
         }
-        None => Err(RenderGraphNixConfigurationReadError::InternalError(
+        None => Err(RenderingPipelineNixConfigurationReadError::InternalError(
             "Nix evaluation returned neither value nor error".to_string(),
         )),
     }

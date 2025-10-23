@@ -10,11 +10,12 @@ use std::path::{Path, PathBuf};
 use thiserror::Error;
 
 pub use nix_reader::{
-    RenderGraphNixConfigurationReadError, read_render_graph_configuration_from_nix_file,
+    RenderingPipelineNixConfigurationReadError, read_rendering_pipeline_configuration_from_nix_file,
 };
 
 pub use json_reader::{
-    RenderGraphJsonConfigurationReadError, read_render_graph_configuration_from_json_file,
+    RenderingPipelineJsonConfigurationReadError,
+    read_rendering_pipeline_configuration_from_json_file,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]

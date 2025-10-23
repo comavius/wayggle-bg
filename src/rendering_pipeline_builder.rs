@@ -13,11 +13,11 @@ pub fn build_rendering_pipeline(
 ) -> Result<RenderingPipeline, String> {
     let conf_render_pass = match &pipeline_configuration.setting_files {
         RenderingPipelineSettingFiles::FromJson(json_file) => {
-            conf_reader::read_render_graph_configuration_from_json_file(&json_file.json_path)
+            conf_reader::read_rendering_pipeline_configuration_from_json_file(&json_file.json_path)
                 .map_err(|e| format!("Failed to read JSON configuration: {}", e))?
         }
         RenderingPipelineSettingFiles::FromNix(nix_files) => {
-            conf_reader::read_render_graph_configuration_from_nix_file(
+            conf_reader::read_rendering_pipeline_configuration_from_nix_file(
                 &nix_files.nix_path,
                 &nix_files.nix_lib_dir,
                 conf_reader::ConfResolution {
@@ -28,7 +28,7 @@ pub fn build_rendering_pipeline(
             .map_err(|e| format!("Failed to read Nix configuration: {}", e))?
         }
     };
-    let rendering_pipeline = flatten_graph::flatten_render_graph(&conf_render_pass);
+    let rendering_pipeline = flatten_graph::flatten_rendering_pipeline(&conf_render_pass);
     Ok(rendering_pipeline)
 }
 
