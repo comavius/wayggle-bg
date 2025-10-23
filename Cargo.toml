@@ -14,6 +14,9 @@ vulkano = "0.35.2"
 shaderc = "0.10.1"
 stb_image = "0.3.0"
 
+wgpu = "27.0.1"
+raw-window-handle = "0.6.2"
+
 # Wayland protocol
 wayland-client = "0.31.10"
 wayland-protocols-wlr = { version = "0.3.8", features = ["client"] }
