@@ -7,7 +7,7 @@ pub enum RenderGraphNixConfigurationReadError {
     #[error("Internal nix library not found: {0}")]
     InternalNixLibraryNotFound(PathBuf),
     #[error("Failed to evaluate nix expression: {0:?}")]
-    NixEvaluationError(Vec<tvix_eval::Error>),
+    NixEvaluationError(Vec<snix_eval::Error>),
     #[error("Failed to deserialize render graph configuration: {0}")]
     SerdeError(serde_json::Error),
     #[error("Internal error: {0}")]
@@ -57,8 +57,8 @@ pub fn read_render_graph_configuration_from_nix_file(
         default_resolution.width
     );
     tracing::debug!("Nix expression: {}", nix_expression);
-    let evaluation = tvix_eval::Evaluation::builder_impure()
-        .mode(EvalMode::Lazy)
+    let evaluation = snix_eval::Evaluation::builder_impure()
+        .mode(snix_eval::EvalMode::Lazy)
         .build();
     let result = evaluation.evaluate(&nix_expression, None);
     if !result.errors.is_empty() {

@@ -8,7 +8,6 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use thiserror::Error;
-use tvix_eval::EvalMode;
 
 pub use nix_reader::{
     RenderGraphNixConfigurationReadError, read_render_graph_configuration_from_nix_file,
