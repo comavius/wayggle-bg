@@ -24,14 +24,20 @@ pub fn read_rendering_pipeline_configuration_from_nix_file(
 ) -> Result<ConfRenderPass, RenderingPipelineNixConfigurationReadError> {
     // Both nix_file_path and nix_lib_dir must be canonicalized
     // to evaluate the nix expression without file path.
-    let canonical_nix_file_path = nix_file_path.canonicalize().map_err(|_| {
-        RenderingPipelineNixConfigurationReadError::InvalidNixFilePath(nix_file_path.to_path_buf())
-    })?;
-    let canonical_nix_lib_dir = nix_lib_dir.canonicalize().map_err(|_| {
-        RenderingPipelineNixConfigurationReadError::InternalNixLibraryNotFound(
-            nix_lib_dir.to_path_buf(),
-        )
-    })?;
+    let canonical_nix_file_path = nix_file_path
+        .canonicalize()
+        .map_err(|_| {
+            RenderingPipelineNixConfigurationReadError::InvalidNixFilePath(
+                nix_file_path.to_path_buf(),
+            )
+        })?;
+    let canonical_nix_lib_dir = nix_lib_dir
+        .canonicalize()
+        .map_err(|_| {
+            RenderingPipelineNixConfigurationReadError::InternalNixLibraryNotFound(
+                nix_lib_dir.to_path_buf(),
+            )
+        })?;
     // Passing height and width of monitor resolution because it is machine dependent.
     //
     // Intentionally using `builtins.toJSON` instead of `snix-eval`
@@ -63,7 +69,10 @@ pub fn read_rendering_pipeline_configuration_from_nix_file(
         .mode(snix_eval::EvalMode::Lazy)
         .build();
     let result = evaluation.evaluate(&nix_expression, None);
-    if !result.errors.is_empty() {
+    if !result
+        .errors
+        .is_empty()
+    {
         return Err(RenderingPipelineNixConfigurationReadError::NixEvaluationError(result.errors));
     }
     match result.value {

@@ -21,8 +21,12 @@ pub fn build_rendering_pipeline(
                 &nix_files.nix_path,
                 &nix_files.nix_lib_dir,
                 conf_reader::ConfResolution {
-                    height: pipeline_configuration.monitor_resolution.height,
-                    width: pipeline_configuration.monitor_resolution.width,
+                    height: pipeline_configuration
+                        .monitor_resolution
+                        .height,
+                    width: pipeline_configuration
+                        .monitor_resolution
+                        .width,
                 },
             )
             .map_err(|e| format!("Failed to read Nix configuration: {}", e))?

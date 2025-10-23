@@ -23,25 +23,34 @@ pub fn run(conf: AppConfiguration) {
     let mut app_state = app_state::AppState::new(display.clone(), conf);
 
     tracing::info!("Waiting for globals...");
-    event_queue.roundtrip(&mut app_state).unwrap();
+    event_queue
+        .roundtrip(&mut app_state)
+        .unwrap();
     tracing::info!("Globals received.");
 
-    let compositor = app_state.compositor.as_ref().expect("Compositor not found");
-    let surface = compositor.0.create_surface(&qh, ());
+    let compositor = app_state
+        .compositor
+        .as_ref()
+        .expect("Compositor not found");
+    let surface = compositor
+        .0
+        .create_surface(&qh, ());
     app_state.surface = Some(surface.clone());
 
     let layer_shell = app_state
         .layer_shell
         .as_ref()
         .expect("Layer shell not found");
-    let layer_surface = layer_shell.0.get_layer_surface(
-        &surface,
-        None,
-        zwlr_layer_shell_v1::Layer::Background,
-        "wayggle-bg".to_string(),
-        &qh,
-        (),
-    );
+    let layer_surface = layer_shell
+        .0
+        .get_layer_surface(
+            &surface,
+            None,
+            zwlr_layer_shell_v1::Layer::Background,
+            "wayggle-bg".to_string(),
+            &qh,
+            (),
+        );
     layer_surface.set_exclusive_zone(-1);
     layer_surface.set_anchor(
         zwlr_layer_surface_v1::Anchor::Top
@@ -56,7 +65,9 @@ pub fn run(conf: AppConfiguration) {
     tracing::info!("Initial commit done. Waiting for configure event...");
 
     while app_state.is_running() {
-        event_queue.blocking_dispatch(&mut app_state).unwrap();
+        event_queue
+            .blocking_dispatch(&mut app_state)
+            .unwrap();
     }
 
     tracing::info!("Exiting.");

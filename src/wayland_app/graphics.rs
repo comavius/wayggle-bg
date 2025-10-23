@@ -44,26 +44,33 @@ impl Graphics {
 
         // glow functions must be called inside an unsafe block
         unsafe {
-            self.gl.viewport(0, 0, self.width, self.height);
+            self.gl
+                .viewport(0, 0, self.width, self.height);
             // Pass the program handle wrapped in Option
-            self.gl.use_program(Some(self.shader_program));
+            self.gl
+                .use_program(Some(self.shader_program));
 
             // Pass a reference to the UniformLocation
             if let Some(location) = self.time_uniform_location {
-                self.gl.uniform_1_f32(Some(&location), elapsed);
+                self.gl
+                    .uniform_1_f32(Some(&location), elapsed);
             }
             if let Some(location) = self.resolution_uniform_location {
                 self.gl
                     .uniform_2_f32(Some(&location), self.width as f32, self.height as f32);
             }
-            if let Some((cursor_location, get_cursor)) = self.cursor_location_and_inspector.as_ref()
+            if let Some((cursor_location, get_cursor)) = self
+                .cursor_location_and_inspector
+                .as_ref()
             {
                 let (x, y) = get_cursor();
-                self.gl.uniform_2_f32(Some(cursor_location), x, y);
+                self.gl
+                    .uniform_2_f32(Some(cursor_location), x, y);
             }
 
             // Draw the rectangle
-            self.gl.draw_arrays(glow::TRIANGLE_STRIP, 0, 4);
+            self.gl
+                .draw_arrays(glow::TRIANGLE_STRIP, 0, 4);
         }
 
         self.egl_instance
@@ -80,7 +87,8 @@ impl Graphics {
         self.wl_egl_surface
             .resize(width as i32, height as i32, 0, 0);
         unsafe {
-            self.gl.viewport(0, 0, width as i32, height as i32);
+            self.gl
+                .viewport(0, 0, width as i32, height as i32);
         }
     }
 
@@ -95,7 +103,11 @@ impl Graphics {
 
         let egl_display = unsafe {
             egl_instance
-                .get_display(display.id().as_ptr() as egl::NativeDisplayType)
+                .get_display(
+                    display
+                        .id()
+                        .as_ptr() as egl::NativeDisplayType,
+                )
                 .ok_or("Failed to get EGL display")
                 .inspect_err(|e| {
                     tracing::error!("{}", e);
@@ -177,12 +189,16 @@ impl Graphics {
 
         let gl = unsafe {
             glow::Context::from_loader_function(|s| {
-                egl_instance.get_proc_address(s).unwrap() as *const _
+                egl_instance
+                    .get_proc_address(s)
+                    .unwrap() as *const _
             })
         };
 
         let shader_program = unsafe {
-            let program = gl.create_program().expect("Cannot create program");
+            let program = gl
+                .create_program()
+                .expect("Cannot create program");
 
             let vs = gl
                 .create_shader(glow::VERTEX_SHADER)
@@ -237,7 +253,10 @@ impl Graphics {
         let resolution_uniform_location =
             unsafe { gl.get_uniform_location(shader_program, "u_resolution") };
 
-        let cursor_location_and_inspector = match conf.get_cursor.as_ref() {
+        let cursor_location_and_inspector = match conf
+            .get_cursor
+            .as_ref()
+        {
             Some(get_cursor) => {
                 let cursor_location = unsafe { gl.get_uniform_location(shader_program, "u_mouse") };
                 match cursor_location {
@@ -255,7 +274,9 @@ impl Graphics {
                 vertices.len() * std::mem::size_of::<f32>(),
             );
 
-            let vbo = gl.create_buffer().unwrap();
+            let vbo = gl
+                .create_buffer()
+                .unwrap();
             gl.bind_buffer(glow::ARRAY_BUFFER, Some(vbo));
             gl.buffer_data_u8_slice(glow::ARRAY_BUFFER, vertices_u8, glow::STATIC_DRAW);
 
@@ -302,8 +323,10 @@ impl Drop for Graphics {
                 .unwrap();
 
             // 2. glow (OpenGL) resources cleanup
-            self.gl.delete_program(self.shader_program);
-            self.gl.delete_buffer(self.vbo);
+            self.gl
+                .delete_program(self.shader_program);
+            self.gl
+                .delete_buffer(self.vbo);
 
             // 3. Destroy EGL surface
             self.egl_instance

@@ -22,8 +22,12 @@ pub fn flatten_rendering_pipeline(conf_render_pass: &ConfRenderPass) -> Renderin
                     ConfRenderPass::TexturePass(pass) => RenderingPass::TexturePass(TexturePass {
                         name: pass.name,
                         resolution: Resolution {
-                            height: pass.resolution.height,
-                            width: pass.resolution.width,
+                            height: pass
+                                .resolution
+                                .height,
+                            width: pass
+                                .resolution
+                                .width,
                         },
                         path: pass.path,
                         format: match pass.format {
@@ -36,16 +40,28 @@ pub fn flatten_rendering_pipeline(conf_render_pass: &ConfRenderPass) -> Renderin
                         RenderingPass::TransformPass(TransformPass {
                             name: pass.name,
                             resolution: Resolution {
-                                height: pass.resolution.height,
-                                width: pass.resolution.width,
+                                height: pass
+                                    .resolution
+                                    .height,
+                                width: pass
+                                    .resolution
+                                    .width,
                             },
                             vertex_shader: pass.vertex_shader,
                             fragment_shader: pass.fragment_shader,
                             builtin_names: BuiltinsNames {
-                                time: pass.builtin_names.time,
-                                resolution: pass.builtin_names.resolution,
-                                mouse: pass.builtin_names.mouse,
-                                position: pass.builtin_names.position,
+                                time: pass
+                                    .builtin_names
+                                    .time,
+                                resolution: pass
+                                    .builtin_names
+                                    .resolution,
+                                mouse: pass
+                                    .builtin_names
+                                    .mouse,
+                                position: pass
+                                    .builtin_names
+                                    .position,
                             },
                             frame_rate: pass.frame_rate,
                         })

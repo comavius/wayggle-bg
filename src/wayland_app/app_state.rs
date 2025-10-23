@@ -136,18 +136,28 @@ impl Dispatch<zwlr_layer_surface_v1::ZwlrLayerSurfaceV1, ()> for AppState {
                     height
                 );
                 surface.ack_configure(serial);
-                if let Some(surface) = state.surface.as_ref()
-                    && state.graphics.is_none()
+                if let Some(surface) = state
+                    .surface
+                    .as_ref()
+                    && state
+                        .graphics
+                        .is_none()
                 {
                     let graphics =
                         Graphics::new(&state.display, &surface, width, height, &state.conf);
-                    let elapsed = state.start_time.elapsed().as_secs_f32();
+                    let elapsed = state
+                        .start_time
+                        .elapsed()
+                        .as_secs_f32();
                     graphics.render(elapsed);
                     tracing::info!("Rendering initial frame");
                     let _callback = surface.frame(qh, ());
                     surface.commit();
                     state.graphics = Some(graphics);
-                } else if let Some(graphics) = state.graphics.as_mut() {
+                } else if let Some(graphics) = state
+                    .graphics
+                    .as_mut()
+                {
                     graphics.resize(width, height);
                 }
             }
@@ -175,10 +185,18 @@ impl Dispatch<wl_callback::WlCallback, ()> for AppState {
             wl_callback::Event::Done { .. } => {
                 let _span_guard = tracing::trace_span!("wl_callback::Event::Done").entered();
                 // Frame callback done, can be used to trigger next render
-                if let (Some(graphics), Some(surface)) =
-                    (state.graphics.as_ref(), state.surface.as_ref())
-                {
-                    let elapsed = state.start_time.elapsed().as_secs_f32();
+                if let (Some(graphics), Some(surface)) = (
+                    state
+                        .graphics
+                        .as_ref(),
+                    state
+                        .surface
+                        .as_ref(),
+                ) {
+                    let elapsed = state
+                        .start_time
+                        .elapsed()
+                        .as_secs_f32();
                     tracing::trace!("Rendering frame at elapsed time: {}", elapsed);
                     graphics.render(elapsed);
                     let _callback = surface.frame(qh, ());

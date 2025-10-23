@@ -8,15 +8,23 @@ pub fn to_mermaid(rendering_pipeline: &RenderingPipeline) -> String {
                 "{}[\"Texture Pass: {}\\n{}x{}\"]",
                 id,
                 texture_pass.name,
-                texture_pass.resolution.width,
-                texture_pass.resolution.height
+                texture_pass
+                    .resolution
+                    .width,
+                texture_pass
+                    .resolution
+                    .height
             ),
             RenderingPass::TransformPass(transform_pass) => format!(
                 "{}[\"Transform Pass: {}\\n{}x{}\"]",
                 id,
                 transform_pass.name,
-                transform_pass.resolution.width,
-                transform_pass.resolution.height
+                transform_pass
+                    .resolution
+                    .width,
+                transform_pass
+                    .resolution
+                    .height
             ),
         };
         mermaid.push_str(&format!("    {}\n", pass_label));
