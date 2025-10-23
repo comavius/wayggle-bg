@@ -1,20 +1,23 @@
 use super::*;
 
-pub fn to_mermaid(rendering_pipeline: &RenderingPipeline) -> String {
+pub fn to_mermaid(rendering_pipeline: &RenderingPipeline) -> String
+{
     let mut mermaid = String::from("graph TD\n");
     for (id, pass) in &rendering_pipeline.passes {
         let pass_label = match pass {
-            RenderingPass::TexturePass(texture_pass) => format!(
-                "{}[\"Texture Pass: {}\\n{}x{}\"]",
-                id,
-                texture_pass.name,
-                texture_pass
-                    .resolution
-                    .width,
-                texture_pass
-                    .resolution
-                    .height
-            ),
+            RenderingPass::TexturePass(texture_pass) => {
+                format!(
+                    "{}[\"Texture Pass: {}\\n{}x{}\"]",
+                    id,
+                    texture_pass.name,
+                    texture_pass
+                        .resolution
+                        .width,
+                    texture_pass
+                        .resolution
+                        .height
+                )
+            }
             RenderingPass::TransformPass(transform_pass) => format!(
                 "{}[\"Transform Pass: {}\\n{}x{}\"]",
                 id,

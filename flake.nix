@@ -20,7 +20,7 @@
         overlays = [rust-overlay.overlays.default];
       };
 
-      toolchain = pkgs.rust-bin.stable.latest.default.override {
+      toolchain = pkgs.rust-bin.nightly.latest.default.override {
         extensions = [
           "rust-src"
         ];

@@ -1,4 +1,5 @@
-pub fn shader_toy_adaptor(fragment_shader: String) -> String {
+pub fn shader_toy_adaptor(fragment_shader: String) -> String
+{
     return format!(
         "
         #version 300 es

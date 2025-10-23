@@ -1,16 +1,27 @@
 use std::time::Instant;
 
 use super::graphics::Graphics;
-use wayland_client::protocol::wl_display;
 use wayland_client::{
-    Connection, Dispatch, QueueHandle,
-    protocol::{wl_callback, wl_compositor, wl_registry, wl_surface},
+    Connection,
+    Dispatch,
+    QueueHandle,
+    protocol::{
+        wl_callback,
+        wl_compositor,
+        wl_display,
+        wl_registry,
+        wl_surface,
+    },
 };
-use wayland_protocols_wlr::layer_shell::v1::client::{zwlr_layer_shell_v1, zwlr_layer_surface_v1};
+use wayland_protocols_wlr::layer_shell::v1::client::{
+    zwlr_layer_shell_v1,
+    zwlr_layer_surface_v1,
+};
 
 use super::AppConfiguration;
 
-pub struct AppState {
+pub struct AppState
+{
     pub graphics: Option<Graphics>,
     pub start_time: Instant,
     pub conf: AppConfiguration,
@@ -23,8 +34,10 @@ pub struct AppState {
     pub layer_surface: Option<zwlr_layer_surface_v1::ZwlrLayerSurfaceV1>,
 }
 
-impl AppState {
-    pub fn new(display: wl_display::WlDisplay, conf: AppConfiguration) -> Self {
+impl AppState
+{
+    pub fn new(display: wl_display::WlDisplay, conf: AppConfiguration) -> Self
+    {
         AppState {
             graphics: None,
             start_time: Instant::now(),
@@ -38,12 +51,14 @@ impl AppState {
         }
     }
 
-    pub fn is_running(&self) -> bool {
+    pub fn is_running(&self) -> bool
+    {
         !self.closed
     }
 }
 
-impl Dispatch<wl_registry::WlRegistry, ()> for AppState {
+impl Dispatch<wl_registry::WlRegistry, ()> for AppState
+{
     fn event(
         state: &mut Self,
         registry: &wl_registry::WlRegistry,
@@ -51,31 +66,45 @@ impl Dispatch<wl_registry::WlRegistry, ()> for AppState {
         _data: &(),
         _conn: &Connection,
         qh: &QueueHandle<Self>,
-    ) {
+    )
+    {
         match event {
-            wl_registry::Event::Global {
-                name,
-                interface,
-                version,
-            } => {
-                let _span_guard =
-                    tracing::trace_span!("wl_registry::Event::Global", name, interface, version)
-                        .entered();
+            wl_registry::Event::Global { name, interface, version } => {
+                let _span_guard = tracing::trace_span!(
+                    "wl_registry::Event::Global",
+                    name,
+                    interface,
+                    version
+                )
+                .entered();
                 match interface.as_str() {
                     "wl_compositor" => {
-                        tracing::info!("Compositor found: {} (version {})", name, version);
-                        state.compositor = Some((registry.bind(name, version, qh, ()), name));
+                        tracing::info!(
+                            "Compositor found: {} (version {})",
+                            name,
+                            version
+                        );
+                        state.compositor =
+                            Some((registry.bind(name, version, qh, ()), name));
                     }
                     "zwlr_layer_shell_v1" => {
-                        tracing::info!("LayerShell found: {} (version {})", name, version);
-                        state.layer_shell = Some((registry.bind(name, version, qh, ()), name));
+                        tracing::info!(
+                            "LayerShell found: {} (version {})",
+                            name,
+                            version
+                        );
+                        state.layer_shell =
+                            Some((registry.bind(name, version, qh, ()), name));
                     }
                     _ => {}
                 }
             }
             wl_registry::Event::GlobalRemove { name } => {
-                let _span_guard =
-                    tracing::trace_span!("wl_registry::Event::GlobalRemove", name).entered();
+                let _span_guard = tracing::trace_span!(
+                    "wl_registry::Event::GlobalRemove",
+                    name
+                )
+                .entered();
                 if let Some((_, compositor_name)) = &state.compositor {
                     if *compositor_name == name {
                         tracing::warn!("Compositor {} removed", name);
@@ -95,7 +124,8 @@ impl Dispatch<wl_registry::WlRegistry, ()> for AppState {
     }
 }
 
-impl Dispatch<zwlr_layer_shell_v1::ZwlrLayerShellV1, ()> for AppState {
+impl Dispatch<zwlr_layer_shell_v1::ZwlrLayerShellV1, ()> for AppState
+{
     fn event(
         _state: &mut Self,
         _layer_shell: &zwlr_layer_shell_v1::ZwlrLayerShellV1,
@@ -103,12 +133,14 @@ impl Dispatch<zwlr_layer_shell_v1::ZwlrLayerShellV1, ()> for AppState {
         _data: &(),
         _conn: &Connection,
         _qh: &QueueHandle<Self>,
-    ) {
+    )
+    {
         // Do nothing: LayerShell never dispatches events.
     }
 }
 
-impl Dispatch<zwlr_layer_surface_v1::ZwlrLayerSurfaceV1, ()> for AppState {
+impl Dispatch<zwlr_layer_surface_v1::ZwlrLayerSurfaceV1, ()> for AppState
+{
     fn event(
         state: &mut Self,
         surface: &zwlr_layer_surface_v1::ZwlrLayerSurfaceV1,
@@ -116,7 +148,8 @@ impl Dispatch<zwlr_layer_surface_v1::ZwlrLayerSurfaceV1, ()> for AppState {
         _data: &(),
         _conn: &Connection,
         qh: &QueueHandle<Self>,
-    ) {
+    )
+    {
         match event {
             zwlr_layer_surface_v1::Event::Configure {
                 serial,
@@ -143,8 +176,13 @@ impl Dispatch<zwlr_layer_surface_v1::ZwlrLayerSurfaceV1, ()> for AppState {
                         .graphics
                         .is_none()
                 {
-                    let graphics =
-                        Graphics::new(&state.display, &surface, width, height, &state.conf);
+                    let graphics = Graphics::new(
+                        &state.display,
+                        &surface,
+                        width,
+                        height,
+                        &state.conf,
+                    );
                     let elapsed = state
                         .start_time
                         .elapsed()
@@ -162,8 +200,10 @@ impl Dispatch<zwlr_layer_surface_v1::ZwlrLayerSurfaceV1, ()> for AppState {
                 }
             }
             zwlr_layer_surface_v1::Event::Closed => {
-                let _span_guard =
-                    tracing::trace_span!("zwlr_layer_surface_v1::Event::Closed").entered();
+                let _span_guard = tracing::trace_span!(
+                    "zwlr_layer_surface_v1::Event::Closed"
+                )
+                .entered();
                 tracing::info!("Layer surface closed");
                 state.closed = true;
             }
@@ -172,7 +212,8 @@ impl Dispatch<zwlr_layer_surface_v1::ZwlrLayerSurfaceV1, ()> for AppState {
     }
 }
 
-impl Dispatch<wl_callback::WlCallback, ()> for AppState {
+impl Dispatch<wl_callback::WlCallback, ()> for AppState
+{
     fn event(
         state: &mut Self,
         _callback: &wl_callback::WlCallback,
@@ -180,11 +221,14 @@ impl Dispatch<wl_callback::WlCallback, ()> for AppState {
         _data: &(),
         _conn: &Connection,
         qh: &QueueHandle<Self>,
-    ) {
+    )
+    {
         match event {
             wl_callback::Event::Done { .. } => {
-                let _span_guard = tracing::trace_span!("wl_callback::Event::Done").entered();
-                // Frame callback done, can be used to trigger next render
+                let _span_guard =
+                    tracing::trace_span!("wl_callback::Event::Done").entered();
+                // Frame callback done, can be used to trigger next
+                // render
                 if let (Some(graphics), Some(surface)) = (
                     state
                         .graphics
@@ -197,12 +241,17 @@ impl Dispatch<wl_callback::WlCallback, ()> for AppState {
                         .start_time
                         .elapsed()
                         .as_secs_f32();
-                    tracing::trace!("Rendering frame at elapsed time: {}", elapsed);
+                    tracing::trace!(
+                        "Rendering frame at elapsed time: {}",
+                        elapsed
+                    );
                     graphics.render(elapsed);
                     let _callback = surface.frame(qh, ());
                     surface.commit();
                 } else {
-                    tracing::trace!("No graphics or surface available for rendering.");
+                    tracing::trace!(
+                        "No graphics or surface available for rendering."
+                    );
                 }
             }
             _ => {
@@ -212,7 +261,8 @@ impl Dispatch<wl_callback::WlCallback, ()> for AppState {
     }
 }
 
-impl Dispatch<wl_surface::WlSurface, ()> for AppState {
+impl Dispatch<wl_surface::WlSurface, ()> for AppState
+{
     fn event(
         _state: &mut Self,
         _surface: &wl_surface::WlSurface,
@@ -220,21 +270,30 @@ impl Dispatch<wl_surface::WlSurface, ()> for AppState {
         _data: &(),
         _conn: &Connection,
         _qh: &QueueHandle<Self>,
-    ) {
+    )
+    {
         match event {
             wl_surface::Event::Enter { .. } => {
-                // Do nothing: Cursor enter event is not needed for background.
+                // Do nothing: Cursor enter event is not needed for
+                // background.
             }
             wl_surface::Event::Leave { .. } => {
-                // Do nothing: Cursor leave event is not needed for background.
+                // Do nothing: Cursor leave event is not needed for
+                // background.
             }
             wl_surface::Event::PreferredBufferScale { factor } => {
                 // todo: HiDPI support
-                tracing::debug!("TODO: Handle preferred buffer scale factor: {}", factor);
+                tracing::debug!(
+                    "TODO: Handle preferred buffer scale factor: {}",
+                    factor
+                );
             }
             wl_surface::Event::PreferredBufferTransform { transform } => {
                 // todo: Device rotation support
-                tracing::debug!("TODO: Handle preferred buffer transform: {:?}", transform);
+                tracing::debug!(
+                    "TODO: Handle preferred buffer transform: {:?}",
+                    transform
+                );
             }
             _ => {
                 // Do nothing
@@ -243,7 +302,8 @@ impl Dispatch<wl_surface::WlSurface, ()> for AppState {
     }
 }
 
-impl Dispatch<wl_compositor::WlCompositor, ()> for AppState {
+impl Dispatch<wl_compositor::WlCompositor, ()> for AppState
+{
     fn event(
         _state: &mut Self,
         _compositor: &wl_compositor::WlCompositor,
@@ -251,7 +311,8 @@ impl Dispatch<wl_compositor::WlCompositor, ()> for AppState {
         _data: &(),
         _conn: &Connection,
         _qh: &QueueHandle<Self>,
-    ) {
+    )
+    {
         // Do nothing: Compositor never dispatches events.
     }
 }

@@ -4,13 +4,22 @@ mod nix_reader;
 #[cfg(test)]
 mod tests;
 
-use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
-use std::path::{Path, PathBuf};
+use serde::{
+    Deserialize,
+    Serialize,
+};
+use std::{
+    collections::HashMap,
+    path::{
+        Path,
+        PathBuf,
+    },
+};
 use thiserror::Error;
 
 pub use nix_reader::{
-    RenderingPipelineNixConfigurationReadError, read_rendering_pipeline_configuration_from_nix_file,
+    RenderingPipelineNixConfigurationReadError,
+    read_rendering_pipeline_configuration_from_nix_file,
 };
 
 pub use json_reader::{
@@ -20,14 +29,16 @@ pub use json_reader::{
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
-pub enum ConfRenderPass {
+pub enum ConfRenderPass
+{
     TexturePass(ConfTexturePass),
     TransformPass(ConfTransformPass),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
-pub struct ConfTexturePass {
+pub struct ConfTexturePass
+{
     pub name: String,
     pub resolution: ConfResolution,
     pub path: PathBuf,
@@ -36,7 +47,8 @@ pub struct ConfTexturePass {
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
-pub enum ConfTextureFormat {
+pub enum ConfTextureFormat
+{
     Png,
     Jpeg,
     Auto,
@@ -44,7 +56,8 @@ pub enum ConfTextureFormat {
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
-pub struct ConfTransformPass {
+pub struct ConfTransformPass
+{
     pub name: String,
     pub resolution: ConfResolution,
     pub vertex_shader: String,
@@ -56,14 +69,16 @@ pub struct ConfTransformPass {
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
-pub struct ConfResolution {
+pub struct ConfResolution
+{
     pub height: u32,
     pub width: u32,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
-pub struct ConfBuiltinsNames {
+pub struct ConfBuiltinsNames
+{
     pub time: String,
     pub resolution: String,
     pub mouse: String,

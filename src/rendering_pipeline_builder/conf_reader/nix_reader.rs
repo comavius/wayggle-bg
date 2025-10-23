@@ -1,7 +1,8 @@
 use super::*;
 
 #[derive(Debug, Error)]
-pub enum RenderingPipelineNixConfigurationReadError {
+pub enum RenderingPipelineNixConfigurationReadError
+{
     #[error("Invalid nix file path: {0}")]
     InvalidNixFilePath(PathBuf),
     #[error("Internal nix library not found: {0}")]
@@ -14,14 +15,16 @@ pub enum RenderingPipelineNixConfigurationReadError {
     InternalError(String),
 }
 
-/// Reader, evaluator and deserializer for rendering pipeline configuration written in Nix.
+/// Reader, evaluator and deserializer for rendering pipeline
+/// configuration written in Nix.
 ///
 /// Encapsulating `tvix-eval` interfaces.
 pub fn read_rendering_pipeline_configuration_from_nix_file(
     nix_file_path: &Path,
     nix_lib_dir: &Path,
     default_resolution: ConfResolution,
-) -> Result<ConfRenderPass, RenderingPipelineNixConfigurationReadError> {
+) -> Result<ConfRenderPass, RenderingPipelineNixConfigurationReadError>
+{
     // Both nix_file_path and nix_lib_dir must be canonicalized
     // to evaluate the nix expression without file path.
     let canonical_nix_file_path = nix_file_path
@@ -38,7 +41,8 @@ pub fn read_rendering_pipeline_configuration_from_nix_file(
                 nix_lib_dir.to_path_buf(),
             )
         })?;
-    // Passing height and width of monitor resolution because it is machine dependent.
+    // Passing height and width of monitor resolution because it is
+    // machine dependent.
     //
     // Intentionally using `builtins.toJSON` instead of `snix-eval`
     // to avoid troubles with purity.
@@ -73,7 +77,11 @@ pub fn read_rendering_pipeline_configuration_from_nix_file(
         .errors
         .is_empty()
     {
-        return Err(RenderingPipelineNixConfigurationReadError::NixEvaluationError(result.errors));
+        return Err(
+            RenderingPipelineNixConfigurationReadError::NixEvaluationError(
+                result.errors,
+            ),
+        );
     }
     match result.value {
         Some(value) => {
@@ -89,8 +97,10 @@ pub fn read_rendering_pipeline_configuration_from_nix_file(
                 .replace("\\n", "\n")
                 .replace("\\\"", "\"")
                 .replace("\\\\", "\\");
-            let render_pass: ConfRenderPass = serde_json::from_str(&json_string)
-                .map_err(RenderingPipelineNixConfigurationReadError::SerdeError)?;
+            let render_pass: ConfRenderPass = serde_json::from_str(
+                &json_string,
+            )
+            .map_err(RenderingPipelineNixConfigurationReadError::SerdeError)?;
             Ok(render_pass)
         }
         None => Err(RenderingPipelineNixConfigurationReadError::InternalError(

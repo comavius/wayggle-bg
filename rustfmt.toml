@@ -1,1 +1,8 @@
 chain_width = 1
+wrap_comments = true
+newline_style = "Unix"
+imports_granularity = "Crate"
+brace_style = "AlwaysNextLine"
+imports_layout = "Vertical"
+max_width = 80
+use_small_heuristics = "Max"

@@ -7,7 +7,8 @@ mod wayland_app;
 use clap::Parser as _;
 use std::rc::Rc;
 
-fn main() {
+fn main()
+{
     tracing_subscriber::fmt()
         .with_env_filter(
             tracing_subscriber::EnvFilter::try_from_default_env()
@@ -16,7 +17,8 @@ fn main() {
         .with_span_events(tracing_subscriber::fmt::format::FmtSpan::FULL)
         .init();
 
-    let default_vertex_shader = include_str!("../shaders/default-vert.glsl").to_string();
+    let default_vertex_shader =
+        include_str!("../shaders/default-vert.glsl").to_string();
 
     let cli_configuration = cli::Cli::parse();
 
@@ -32,10 +34,7 @@ fn main() {
             let fragment_shader = adaptors::shader_toy_adaptor(fragment_shader);
             (default_vertex_shader.clone(), fragment_shader)
         }
-        cli::Command::TheBookOfShaders {
-            fragment_shader,
-            vertex_shader,
-        } => {
+        cli::Command::TheBookOfShaders { fragment_shader, vertex_shader } => {
             let fragment_shader = fragment_shader;
             let vertex_shader = vertex_shader.unwrap_or(default_vertex_shader);
             (vertex_shader, fragment_shader)
@@ -44,7 +43,10 @@ fn main() {
             let fragment_shader = default_shaders
                 .get(&name)
                 .unwrap_or_else(|| {
-                    tracing::error!("Shader '{}' not found in default shaders", name);
+                    tracing::error!(
+                        "Shader '{}' not found in default shaders",
+                        name
+                    );
                     std::process::exit(1);
                 })
                 .clone();

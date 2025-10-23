@@ -2,17 +2,22 @@ mod app_state;
 mod graphics;
 
 use wayland_client::Connection;
-use wayland_protocols_wlr::layer_shell::v1::client::{zwlr_layer_shell_v1, zwlr_layer_surface_v1};
+use wayland_protocols_wlr::layer_shell::v1::client::{
+    zwlr_layer_shell_v1,
+    zwlr_layer_surface_v1,
+};
 
 use std::rc::Rc;
 
-pub struct AppConfiguration {
+pub struct AppConfiguration
+{
     pub vertex_shader: String,
     pub fragment_shader: String,
     pub get_cursor: Option<Rc<fn() -> (f32, f32)>>,
 }
 
-pub fn run(conf: AppConfiguration) {
+pub fn run(conf: AppConfiguration)
+{
     let conn = Connection::connect_to_env().unwrap();
     let mut event_queue = conn.new_event_queue();
     let qh = event_queue.handle();

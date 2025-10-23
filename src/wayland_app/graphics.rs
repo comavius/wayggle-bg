@@ -2,15 +2,22 @@ use glow::HasContext;
 
 use khronos_egl as egl;
 
-use wayland_client::protocol::wl_surface;
-use wayland_client::{Proxy, protocol::wl_display};
+use wayland_client::{
+    Proxy,
+    protocol::{
+        wl_display,
+        wl_surface,
+    },
+};
 use wayland_egl as wegl;
 
 use super::AppConfiguration;
 use std::rc::Rc;
 
-/// Struct to manage EGL/OpenGL ES initialization and rendering using `glow`
-pub struct Graphics {
+/// Struct to manage EGL/OpenGL ES initialization and rendering using
+/// `glow`
+pub struct Graphics
+{
     egl_instance: egl::Instance<egl::Static>,
     egl_display: egl::Display,
     egl_context: egl::Context,
@@ -25,11 +32,14 @@ pub struct Graphics {
     vbo: glow::Buffer,
     time_uniform_location: Option<glow::UniformLocation>,
     resolution_uniform_location: Option<glow::UniformLocation>,
-    cursor_location_and_inspector: Option<(glow::UniformLocation, Rc<fn() -> (f32, f32)>)>,
+    cursor_location_and_inspector:
+        Option<(glow::UniformLocation, Rc<fn() -> (f32, f32)>)>,
 }
 
-impl Graphics {
-    pub fn render(&self, elapsed: f32) {
+impl Graphics
+{
+    pub fn render(&self, elapsed: f32)
+    {
         self.egl_instance
             .make_current(
                 self.egl_display,
@@ -57,7 +67,11 @@ impl Graphics {
             }
             if let Some(location) = self.resolution_uniform_location {
                 self.gl
-                    .uniform_2_f32(Some(&location), self.width as f32, self.height as f32);
+                    .uniform_2_f32(
+                        Some(&location),
+                        self.width as f32,
+                        self.height as f32,
+                    );
             }
             if let Some((cursor_location, get_cursor)) = self
                 .cursor_location_and_inspector
@@ -81,7 +95,8 @@ impl Graphics {
             .unwrap();
     }
 
-    pub fn resize(&mut self, width: u32, height: u32) {
+    pub fn resize(&mut self, width: u32, height: u32)
+    {
         self.width = width as i32;
         self.height = height as i32;
         self.wl_egl_surface
@@ -98,7 +113,8 @@ impl Graphics {
         width: u32,
         height: u32,
         conf: &AppConfiguration,
-    ) -> Self {
+    ) -> Self
+    {
         let egl_instance = egl::Instance::<egl::Static>::new(egl::Static);
 
         let egl_display = unsafe {
@@ -162,7 +178,8 @@ impl Graphics {
             .unwrap();
 
         let wl_egl_surface =
-            wegl::WlEglSurface::new(surface.id(), width as i32, height as i32).unwrap();
+            wegl::WlEglSurface::new(surface.id(), width as i32, height as i32)
+                .unwrap();
 
         let egl_surface = unsafe {
             egl_instance
@@ -248,7 +265,8 @@ impl Graphics {
             program
         };
 
-        let time_uniform_location = unsafe { gl.get_uniform_location(shader_program, "u_time") };
+        let time_uniform_location =
+            unsafe { gl.get_uniform_location(shader_program, "u_time") };
 
         let resolution_uniform_location =
             unsafe { gl.get_uniform_location(shader_program, "u_resolution") };
@@ -258,9 +276,13 @@ impl Graphics {
             .as_ref()
         {
             Some(get_cursor) => {
-                let cursor_location = unsafe { gl.get_uniform_location(shader_program, "u_mouse") };
+                let cursor_location = unsafe {
+                    gl.get_uniform_location(shader_program, "u_mouse")
+                };
                 match cursor_location {
-                    Some(cursor_location) => Some((cursor_location, get_cursor.clone())),
+                    Some(cursor_location) => {
+                        Some((cursor_location, get_cursor.clone()))
+                    }
                     None => None,
                 }
             }
@@ -268,7 +290,8 @@ impl Graphics {
         };
 
         let vbo = unsafe {
-            let vertices: [f32; 8] = [-1.0, -1.0, 1.0, -1.0, -1.0, 1.0, 1.0, 1.0];
+            let vertices: [f32; 8] =
+                [-1.0, -1.0, 1.0, -1.0, -1.0, 1.0, 1.0, 1.0];
             let vertices_u8: &[u8] = core::slice::from_raw_parts(
                 vertices.as_ptr() as *const u8,
                 vertices.len() * std::mem::size_of::<f32>(),
@@ -278,7 +301,11 @@ impl Graphics {
                 .create_buffer()
                 .unwrap();
             gl.bind_buffer(glow::ARRAY_BUFFER, Some(vbo));
-            gl.buffer_data_u8_slice(glow::ARRAY_BUFFER, vertices_u8, glow::STATIC_DRAW);
+            gl.buffer_data_u8_slice(
+                glow::ARRAY_BUFFER,
+                vertices_u8,
+                glow::STATIC_DRAW,
+            );
 
             let pos_attr_loc = gl
                 .get_attrib_location(shader_program, "a_position")
@@ -288,7 +315,14 @@ impl Graphics {
                 })
                 .unwrap();
             gl.enable_vertex_attrib_array(pos_attr_loc);
-            gl.vertex_attrib_pointer_f32(pos_attr_loc, 2, glow::FLOAT, false, 0, 0);
+            gl.vertex_attrib_pointer_f32(
+                pos_attr_loc,
+                2,
+                glow::FLOAT,
+                false,
+                0,
+                0,
+            );
 
             vbo
         };
@@ -311,8 +345,10 @@ impl Graphics {
     }
 }
 
-impl Drop for Graphics {
-    fn drop(&mut self) {
+impl Drop for Graphics
+{
+    fn drop(&mut self)
+    {
         unsafe {
             // 1. Unbind EGL context
             self.egl_instance

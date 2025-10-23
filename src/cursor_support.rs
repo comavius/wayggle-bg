@@ -1,4 +1,5 @@
-pub fn hyprland_get_cursor() -> (f32, f32) {
+pub fn hyprland_get_cursor() -> (f32, f32)
+{
     // Get the cursor position from the Hyprland API
     let output = std::process::Command::new("hyprctl")
         .arg("cursorpos")
