@@ -1,3 +1,6 @@
+> [!WARNING]
+> wayggle-bg is not maintained anymore. If you want to render shaders on the backgound layer of your wlroot compatible wayland compositor, please consider using [windowtolayer](https://gitlab.freedesktop.org/mstoeckl/windowtolayer), which is a nested wayland compositor that can render any wayland compatible application on the specified layer.
+
 # wayggle-bg
 
 If you want to try it out, you can run the following command:
